@@ -130,23 +130,23 @@ function djangoPlugin(config: InternalConfig): Plugin {
                         )
                         server.config.logger.info('')
                     }, 100)
-
-                    if (!exitHandlersBound) {
-                        const clean = () => {
-                            if (fs.existsSync(config.appConfig.HOT_FILE)) {
-                                fs.rmSync(config.appConfig.HOT_FILE)
-                            }
-                        }
-
-                        process.on('exit', clean)
-                        process.on('SIGINT', process.exit)
-                        process.on('SIGTERM', process.exit)
-                        process.on('SIGHUP', process.exit)
-
-                        exitHandlersBound = true
-                    }
                 }
             })
+
+            if (! exitHandlersBound) {
+                const clean = () => {
+                    if (fs.existsSync(config.appConfig.HOT_FILE)) {
+                        fs.rmSync(config.appConfig.HOT_FILE)
+                    }
+                }
+
+                process.on('exit', clean)
+                process.on('SIGINT', process.exit)
+                process.on('SIGTERM', process.exit)
+                process.on('SIGHUP', process.exit)
+
+                exitHandlersBound = true
+            }
 
             return () =>
                 server.middlewares.use((req, res, next) => {
